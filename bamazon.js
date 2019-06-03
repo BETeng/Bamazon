@@ -11,12 +11,13 @@ var connection = mysql.createConnection({
 connection.connect(function (err) {
   if (err) throw err;
   showItems();
-  toBuy();
+  
 })
 
 function showItems() {
   connection.query("SELECT * FROM products", function (err, res) {
     console.table(res);
+    toBuy();
   })
 }
 
@@ -30,13 +31,16 @@ function toBuy() {
     .then(function (answer) {
       var query = "SELECT * FROM products WHERE item_id=?";
       connection.query(query, [(answer.item)], function (err, res) {
-        console.table(res)
+        console.table(res);
+        var leftInStock = res[0].stock_quantity;
+        console.log(leftInStock);
+        howMany(leftInStock);
       })
     }
     )
 }
 
-function howMany(){
+function howMany(leftInStock){
   inquirer
   .prompt({
     name: 'quantity',
@@ -44,16 +48,21 @@ function howMany(){
     message: 'How many of the following item would you like to buy?'
   })
   .then(function(answer){
-    //compare amount of item to stock_quantity
-      // if (stock_quantity >= answer.quantity){
-      //   allow transaction to go thru
-      //   log price * answer.quantity
-      //   subtract answer.quantity from stock_quantity
-      //   redisplay the table}
-      // else{
-      //   console.log("Insufficient Quantity!");
-      //   toBuy();
-      // }
+    // compare amount of item to stock_quantity
+      if (leftInStock >= answer.quantity){
+        console.log(answer.quantity)
+        console.log(leftInStock)
+
+
+        // allow transaction to go thru
+        // log price * answer.quantity
+        // subtract answer.quantity from stock_quantity
+        // redisplay the table
+      }
+      else{
+        console.log("Insufficient Quantity!");
+        toBuy();
+      }
 
 
 
