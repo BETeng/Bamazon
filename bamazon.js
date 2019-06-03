@@ -33,14 +33,15 @@ function toBuy() {
       connection.query(query, [(answer.item)], function (err, res) {
         console.table(res);
         var leftInStock = res[0].stock_quantity;
+        var itemPrice = res[0].price;
         console.log(leftInStock);
-        howMany(leftInStock);
+        howMany(leftInStock, itemPrice);
       })
     }
     )
 }
 
-function howMany(leftInStock){
+function howMany(leftInStock, itemPrice){
   inquirer
   .prompt({
     name: 'quantity',
@@ -50,12 +51,11 @@ function howMany(leftInStock){
   .then(function(answer){
     // compare amount of item to stock_quantity
       if (leftInStock >= answer.quantity){
-        console.log(answer.quantity)
-        console.log(leftInStock)
+        var totalPrice = itemPrice*answer.quantity;
+        console.log("You spent $"+totalPrice);
+        showItems();
 
-
-        // allow transaction to go thru
-        // log price * answer.quantity
+        
         // subtract answer.quantity from stock_quantity
         // redisplay the table
       }
