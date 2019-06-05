@@ -11,7 +11,7 @@ var connection = mysql.createConnection({
 connection.connect(function (err) {
   if (err) throw err;
   showItems();
-  
+
 })
 
 function showItems() {
@@ -32,40 +32,37 @@ function toBuy() {
       var query = "SELECT * FROM products WHERE item_id=?";
       connection.query(query, [(answer.item)], function (err, res) {
         console.table(res);
+        var itemNumber = parseFloat(answer.item); // id number
         var leftInStock = res[0].stock_quantity;
         var itemPrice = res[0].price;
         console.log(leftInStock);
-        howMany(leftInStock, itemPrice);
+        console.log('itemnumber', itemNumber);
+        howMany(itemNumber, leftInStock, itemPrice);
       })
     }
     )
 }
 
-function howMany(leftInStock, itemPrice){
+function howMany(itemNumber, leftInStock, itemPrice) {
   inquirer
-  .prompt({
-    name: 'quantity',
-    type: 'input',
-    message: 'How many of the following item would you like to buy?'
-  })
-  .then(function(answer){
-    // compare amount of item to stock_quantity
-      if (leftInStock >= answer.quantity){
-        var totalPrice = itemPrice*answer.quantity;
-        console.log("You spent $"+totalPrice);
+    .prompt({
+      name: 'quantity',
+      type: 'input',
+      message: 'How many of the following item would you like to buy?'
+    })
+    .then(function (answer) {
+      if (leftInStock >= answer.quantity) {
+        let stockRemaining = leftInStock - answer.quantity;
+        console.log("stockRemaining", stockRemaining);
+        connection.query("UPDATE products SET ? WHERE ?",[{stock_quantity: stockRemaining },
+        {item_id: itemNumber}])
+        var totalPrice = itemPrice * answer.quantity;
+        console.log("You spent $" + totalPrice);
         showItems();
-
-        
-        // subtract answer.quantity from stock_quantity
-        // redisplay the table
       }
-      else{
+      else {
         console.log("Insufficient Quantity!");
-        toBuy();
+        showItems();
       }
-
-
-
-
-      })
-    } //howmany function closing bracket
+    })
+} //howmany function closing bracket
